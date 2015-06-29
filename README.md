@@ -1,2 +1,4 @@
 # SocketRobot
 ロボットを動かすときの通信をWebSocketを使ってやってみる。
+
+WebカメラとAudioをそれぞれWebSocketで転送してみた。
