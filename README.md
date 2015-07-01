@@ -2,3 +2,10 @@
 ロボットを動かすときの通信をWebSocketを使ってやってみる。
 
 WebカメラとAudioをそれぞれWebSocketで転送してみた。
+
+ServerサイドのWebSocketはTornado
+
+Webカメラの取得はOpenCV
+
+マイク入力の取得はPyAudio
+
