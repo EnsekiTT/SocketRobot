@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+
 import os
 import cv2
 import threading
@@ -9,6 +11,7 @@ import tornado.web
 import tornado.websocket
 import tornado.httpserver
 
+
 class SocketRobotNetwork:
     def __init__(self):
         print 'Booting Server'
@@ -17,15 +20,18 @@ class SocketRobotNetwork:
     def set_server(self):
         camera = SocketRobotCamera()
         audio = SocketRobotAudio()
+        selfpath = os.path.dirname(__file__)
         settings = {
-            "contents_path": os.path.join(os.path.dirname(__file__), "contents"),
+            "contents_path": os.path.join(selfpath, "contents"),
         }
+        contdict = dict(path=settings['contents_path'])
         self.app = tornado.web.Application([
             (r"/camview", HttpCamViewHandler),
             (r"/audlisten", HttpAudListenHandler),
             (r"/camera", CWSHandler, dict(camera=camera)),
             (r"/audio", AWSHandler, dict(audio=audio)),
-            (r"/(.*)", tornado.web.StaticFileHandler, dict(path=settings['contents_path'])),], **settings)
+            (r"/(.*)", tornado.web.StaticFileHandler, contdict),
+            ], **settings)
 
     def listen_start(self):
         print 'Start Listener'
@@ -37,6 +43,7 @@ class SocketRobotNetwork:
         print 'Stop Listener'
         tornado.ioloop.IOLoop.instance().stop()
 
+
 class HttpCamViewHandler(tornado.web.RequestHandler):
     def initialize(self):
         pass
@@ -44,12 +51,14 @@ class HttpCamViewHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('contents/camera.html')
 
+
 class HttpAudListenHandler(tornado.web.RequestHandler):
     def initialize(self):
         pass
 
     def get(self):
         self.render('contents/audio.html')
+
 
 class CWSHandler(tornado.websocket.WebSocketHandler):
     def initialize(self, camera):
@@ -73,6 +82,7 @@ class CWSHandler(tornado.websocket.WebSocketHandler):
         self.state = False
         self.close()
         print(self.request.remote_ip, ": connection closed")
+
 
 class AWSHandler(tornado.websocket.WebSocketHandler):
     def initialize(self, audio):
@@ -98,6 +108,7 @@ class AWSHandler(tornado.websocket.WebSocketHandler):
         self.close()
         print(self.request.remote_ip, ": connection closed")
 
+
 class SocketRobotAudio:
     def __init__(self):
         print 'Booting Audio'
@@ -110,11 +121,12 @@ class SocketRobotAudio:
         self.p = pyaudio.PyAudio()
 
     def set_stream(self):
-        self.stream = self.p.open(format = self.FORMAT,
-                        channels = self.CHANNELS,
-                        rate = self.RATE,
-                        input = True,
-                        frames_per_buffer = self.chunk)
+        self.stream = self.p.open(
+            format=self.FORMAT,
+            channels=self.CHANNELS,
+            rate=self.RATE,
+            input=True,
+            frames_per_buffer=self.chunk)
 
     def get_frame(self):
         data = self.stream.read(self.chunk)
@@ -123,19 +135,21 @@ class SocketRobotAudio:
     def close_stream(self):
         self.stream.close()
 
+
 class SocketRobotCamera:
     def __init__(self):
         print 'Booting Camera'
         self.cap = cv2.VideoCapture(0)
         self.fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-        self.old_frame = np.zeros((480, 360),np.uint8)
+        self.old_frame = np.zeros((480, 360), np.uint8)
 
     def get_frame(self):
         frame = self.old_frame
-        if(self.cap.isOpened()):
+        if self.cap.isOpened():
             ret, frame = self.cap.read()
-            if ret != False:
+            if ret is not False:
                 self.old_frame = frame
+
         frame = cv2.resize(frame, (480, 360))
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2RGBA)
@@ -146,10 +160,10 @@ class SocketRobotCamera:
     def quick_show(self):
         while(self.cap.isOpened()):
             ret, frame = self.cap.read()
-            if ret==False:
+            if ret is False:
                 break
 
-            cv2.imshow('frame',frame)
+            cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.cap.release()
                 cv2.destroyAllWindows()
