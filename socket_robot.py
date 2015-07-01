@@ -102,8 +102,8 @@ class CWSHandler(tornado.websocket.WebSocketHandler):
     def loop(self):
         """Main loop for WebSocket."""
         while 1:
-            jpegFrame = self.camera.get_frame()
-            self.write_message(jpegFrame, binary=True)
+            camera_frame = self.camera.get_frame()
+            self.write_message(camera_frame, binary=True)
             if not self.state:
                 break
 
@@ -134,8 +134,8 @@ class AWSHandler(tornado.websocket.WebSocketHandler):
         """Main loop for WebSocket."""
         self.audio.set_stream()
         while 1:
-            audioFrame = self.audio.get_frame()
-            self.write_message(audioFrame, binary=True)
+            audio_frame = self.audio.get_frame()
+            self.write_message(audio_frame, binary=True)
             if not self.state:
                 break
 
