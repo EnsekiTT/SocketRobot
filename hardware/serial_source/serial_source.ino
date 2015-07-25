@@ -19,11 +19,17 @@ void setup() {
   Serial.begin(38400);
   //servo1.attach(9);
   //servo1.write(0);
-  
-  Wire.begin();
-  accelgyro.initialize();
-  accelgyro.setI2CBypassEnabled(true);
-  
+  while(1){
+    Wire.begin();
+    accelgyro.initialize();
+    accelgyro.setI2CBypassEnabled(true);
+    if(accelgyro.testConnection()){
+      Serial.println("Connected");
+    }else{
+      Serial.println("Retry");
+      delay(1000);
+    }
+  }
 }
 
 void loop() {
